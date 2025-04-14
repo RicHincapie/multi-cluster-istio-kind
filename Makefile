@@ -6,7 +6,7 @@ KUBECONFIG := $(HOME)/.kube/test-config.yaml
 
 export NUM_CLUSTERS
 
-all: cluster istio app
+all: cluster istio app monitoring
 
 cluster:
 	./kind-setup/create-cluster.sh
@@ -15,10 +15,30 @@ istio:
 	./kind-setup/install-cacerts.sh
 	./istio-setup/install-istio.sh
 	./istio-chart/enable-endpoint-discovery.sh
+
 app:
-	./testing/deploy-application.sh
+	./testing/deploy-helloworld.sh
+	./testing/deploy-bookinfo.sh
+	./testing/deploy-curl.sh
+
+monitoring:
+	./testing/monitoring/metrics/install-observability.sh
+	istioctl dashboard kiali
+
+accesslogs:
 
 # TODO: remove the certs so they are created fresh again
 clean:
 	./kind-setup/delete-clusters.sh
 	rm -rf kind-setup/certs/*
+
+clean-istio:
+	kubectl delete ns istio-system
+	kubectl delete ns metallb-system
+	kubectl delete ns istio-operator
+
+refresh-remote-discovery:
+	./istio-chart/enable-endpoint-discovery.sh
+
+scenario-lbLocality:
+	./scenarios/localityLb/install-scenario.sh
