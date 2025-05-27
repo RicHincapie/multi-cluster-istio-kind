@@ -14,7 +14,7 @@ for i in $(seq "${NUM_CLUSTERS}"); do
   sleep_duration=$((90/i))
   echo "Starting metallb deployment in cluster${i}"
 
-  kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.10/config/manifests/metallb-native.yaml --context "cluster${i}"
+  kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml --context "cluster${i}"
   kustomize build ${DIR}/kind-setup/metalLb | kubectl apply -f -
   # TODO: this metallb-configmap need to be automatically generated
   kubectl wait --for=condition=available --timeout=90s deployment/controller \
